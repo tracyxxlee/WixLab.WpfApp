@@ -16,11 +16,16 @@
       <Directory Id="ProgramFilesFolder">
         <Directory Id="APPLICATIONROOTDIRECTORY" Name="$(var.CompanyName)" />
       </Directory>
+
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="$(var.CompanyName)"/>
+      </Directory>
     </Directory>
 
     <!-- Step 2: Tell WiX to install the files -->
     <Feature Id="MainApplication" Title="Main Application" Level="1">
       <ComponentRef Id="WixLab.WpfApp.exe" />
+      <ComponentRef Id="ApplicationShortcut" />  
     </Feature>
 		
 	</Product>
@@ -29,6 +34,20 @@
     <DirectoryRef Id="APPLICATIONROOTDIRECTORY">
       <Component Id="WixLab.WpfApp.exe" Guid="{656E495C-48C5-41B7-A482-DD07C2A59A4B}">
         <File Id="WixLab.WpfApp.exe" Source="$(var.WixLab.WpfApp.TargetDir)publish\WixLab.WpfApp.exe" Checksum="yes"/>
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+
+  <Fragment>
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="ApplicationShortcut" Guid="{E8626AD8-1028-4158-B002-D2B9C2582C4D}">
+        <Shortcut Id="ApplicationStartMenuShortcut"
+                  Name="$(var.Name)"
+                  Description="$(var.Description)"
+                  Target="[#WixLab.WpfApp.exe]"
+                  WorkingDirectory="APPLICATIONROOTDIRECTORY"/>
+        <RemoveFolder Id="CleanUpShortCut" Directory="ApplicationProgramsFolder" On="uninstall"/>
+        <RegistryValue Root="HKCU" Key="Software\$(var.CompanyName)\$(var.Name)" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
       </Component>
     </DirectoryRef>
   </Fragment>
