@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?define CompanyName="MyCompany"?>
+<?define Name = "WixLab.WpfApp" ?>
+<?define Description = "Demo for Wix" ?>
+<?define Manufacturer = "ASKA" ?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Product Id="*" Name="$(var.Name).Setup" Language="1033" Version="1.0.0.0" Manufacturer="$(var.Manufacturer)" UpgradeCode="d7bf31e2-8137-403a-bf19-d9d98463b819">
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+		<MediaTemplate />
+
+    <!-- Step 1: Define the directory structure -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="APPLICATIONROOTDIRECTORY" Name="$(var.CompanyName)" />
+      </Directory>
+    </Directory>
+
+    <!-- Step 2: Tell WiX to install the files -->
+    <Feature Id="MainApplication" Title="Main Application" Level="1">
+      <ComponentRef Id="WixLab.WpfApp.exe" />
+    </Feature>
+		
+	</Product>
+
+  <Fragment>
+    <DirectoryRef Id="APPLICATIONROOTDIRECTORY">
+      <Component Id="WixLab.WpfApp.exe" Guid="{656E495C-48C5-41B7-A482-DD07C2A59A4B}">
+        <File Id="WixLab.WpfApp.exe" Source="$(var.WixLab.WpfApp.TargetDir)publish\WixLab.WpfApp.exe" Checksum="yes"/>
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+
+</Wix>
