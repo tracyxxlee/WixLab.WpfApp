@@ -31,13 +31,17 @@
 
     <!-- Step 3: Add UI to your installer / Step 4: Trigger the custom action -->
     <UI>
-      <UIRef Id="WixUI_Minimal" />
+      <UIRef Id="WixUI_InstallDir" />
+      <!-- Removing EULA dialog -->
+      <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg" Order="2">1</Publish>
+      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg" Order="2">1</Publish>
+
       <Publish Dialog="ExitDialog"
-          Control="Finish"
-          Event="DoAction"
-          Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
+            Control="Finish"
+            Event="DoAction"
+            Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
     </UI>
-    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch $(var.Name)" />
+      <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch $(var.Name)" />
     <Property Id="WixShellExecTarget" Value="[#WixLab.WpfApp.exe]" />
     <CustomAction Id="LaunchApplication"
                   BinaryKey="WixCA"
