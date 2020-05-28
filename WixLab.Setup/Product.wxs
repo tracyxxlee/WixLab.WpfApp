@@ -7,7 +7,7 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
 	<Product Id="*" Name="$(var.Name)" Language="1033" Version="1.0.0.0" UpgradeCode="d7bf31e2-8137-403a-bf19-d9d98463b819"
            Manufacturer="$(var.Manufacturer)" >
-		<Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+		<Package InstallerVersion="200" Compressed="yes" InstallScope="perUser" />
 
 		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
 		<MediaTemplate />
@@ -21,12 +21,17 @@
       <Directory Id="ProgramMenuFolder">
         <Directory Id="ApplicationProgramsFolder" Name="$(var.CompanyName)"/>
       </Directory>
+    
+      <Directory Id="LocalAppDataFolder">
+        <Directory Id="LOCALDATADIRECTORY" Name="$(var.CompanyName)"/>
+      </Directory>
     </Directory>
 
     <!-- Step 2: Tell WiX to install the files -->
     <Feature Id="MainApplication" Title="Main Application" Level="1">
       <ComponentRef Id="WixLab.WpfApp.exe" />
       <ComponentRef Id="ApplicationShortcut" />  
+      <ComponentRef Id="localAppDataSettings" />
     </Feature>
 
     <!-- Step 3: Add UI to your installer / Step 4: Trigger the custom action -->
@@ -41,7 +46,7 @@
             Event="DoAction"
             Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed</Publish>
     </UI>
-      <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch $(var.Name)" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch $(var.Name)" />
     <Property Id="WixShellExecTarget" Value="[#WixLab.WpfApp.exe]" />
     <CustomAction Id="LaunchApplication"
                   BinaryKey="WixCA"
@@ -49,11 +54,11 @@
                   Impersonate="yes" />
 	</Product>
 
-  <Fragment>
+  <Fragment>              
     <DirectoryRef Id="APPLICATIONROOTDIRECTORY">
       <Component Id="WixLab.WpfApp.exe" Guid="{656E495C-48C5-41B7-A482-DD07C2A59A4B}">
         <File Id="WixLab.WpfApp.exe" Source="$(var.WixLab.WpfApp.TargetDir)publish\WixLab.WpfApp.exe" Checksum="yes"/>
-      </Component>
+      </Component>  
     </DirectoryRef>
   </Fragment>
 
@@ -66,7 +71,17 @@
                   Target="[#WixLab.WpfApp.exe]"
                   WorkingDirectory="APPLICATIONROOTDIRECTORY"/>
         <RemoveFolder Id="CleanUpShortCut" Directory="ApplicationProgramsFolder" On="uninstall"/>
-        <RegistryValue Root="HKCU" Key="Software\$(var.CompanyName)\$(var.Name)" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+        <RegistryValue Root="HKCU" Key="Software\$(var.CompanyName)\$(var.Name)\WixLab.WpfApp.exe" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  
+  <Fragment>
+    <DirectoryRef Id="LOCALDATADIRECTORY">
+      <Component Id="localAppDataSettings" Guid="{310110D5-E929-4CDF-8A7A-8A49536B2901}">
+        <File Id="appsettings.json" Source="$(var.WixLab.WpfApp.TargetDir)appsettings.json" Checksum="yes"/>
+        <RemoveFolder Id="CleanUpLocalAppData" Directory="LOCALDATADIRECTORY" On="uninstall"/>
+        <RegistryValue Root="HKCU" Key="Software\$(var.CompanyName)\$(var.Name)\appsettings.json" Name="installed" Type="integer" Value="1" KeyPath="yes"/>
       </Component>
     </DirectoryRef>
   </Fragment>
